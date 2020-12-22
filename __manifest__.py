@@ -20,6 +20,13 @@
         "purchase",               # Gestion des achats
         "project",                # Gestin de projets
         "hr",                     # Répertoire des employés
+        "board",
+        "hr_attendance",
+        "hr_timesheet",
+        "sale_crm",
+        "sale_stock",
+        "stock",
+        "stock_account",
     ], 
     "init_xml" : [],
     "demo_xml" : [],
