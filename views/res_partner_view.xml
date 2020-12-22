@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+        <menuitem name="CRM"       id="menu_crm"           sequence="1"/>
+        <menuitem name="CRM"       id="menu_crm_crm"       sequence="10"  parent="menu_crm"/>
+        <menuitem name="Documents" id="menu_crm_documents" sequence="20"  parent="menu_crm"/>
+        <menuitem name="Tables"    id="menu_crm_tables"    sequence="30"  parent="menu_crm"/>
+
+
+        <!-- Menu Sportifs -->
+        <record model="ir.ui.view" id="is_sportif_tree_view">
+            <field name="name">is_sportif_tree_view</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="is_prenom"/>
+                    <field name="phone"/>
+                    <field name="mobile"/>
+                    <field name="email"/>
+                    <field name="is_club_id"/>
+                    <field name="is_sport_id"/>
+                    <field name="is_date_naissance"/>
+                    <field name="is_statut_sportif_id"/>
+                    <field name="is_agrement"     invisible="context.get('invisible_is_agrement', True)"/>
+                    <field name="is_financeur_ids"/>
+                    <field name="is_type_contact"/>
+                </tree>
+            </field>
+        </record>
+        <record id="is_sportif_action" model="ir.actions.act_window">
+            <field name="name">Sportifs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_id" ref="is_sportif_tree_view"/>
+            <field name="context">{}</field>
+            <field name="domain">[('is_type_contact','=','sportif')]</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <record id="is_sportif_action2" model="ir.actions.act_window">
+            <field name="name">Sportifs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_id" ref="is_sportif_tree_view"/>
+            <field name="context">{'default_is_club_id': active_id, 'search_default_is_club_id': active_id}</field>
+            <field name="domain">[('is_type_contact','=','sportif')]</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <record id="is_sportif_action3" model="ir.actions.act_window">
+            <field name="name">Sportifs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_id" ref="is_sportif_tree_view"/>
+            <field name="context">{'default_is_financeur_ids': active_id, 'search_default_is_financeur_ids': active_id}</field>
+            <field name="domain">["|",('is_type_contact','=','club'),('is_type_contact','=','sportif')]</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <menuitem action="is_sportif_action" id="menu_crm_sportif" parent="menu_crm_crm" sequence="30"/>
+
+        <record model="ir.ui.view" id="is_view_partner_form">
+            <field name="name">is_view_partner_form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <!-- <xpath expr="//div[@name='buttons']" position="inside">
+                    <button class="oe_inline oe_stat_button" type="action"
+                            attrs="{'invisible': [('is_type_contact', '!=', 'club')]}"
+                            name="%(is_nouvelle_trajectoire.is_sportif_action2)d"
+                            icon="fa-users">
+                        <field string="Sportifs" name="is_sportif_count" widget="statinfo"/>
+                    </button>
+                    <button class="oe_inline oe_stat_button" type="action"
+                            attrs="{'invisible': [('is_type_contact', '!=', 'financeur_institutionnel'),
+                                                  ('is_type_contact', '!=', 'financeur_prive')]}"
+                            name="%(is_nouvelle_trajectoire.is_sportif_action3)d"
+                            icon="fa-users">
+                        <field string="Club/Sportif" name="is_club_sportif_count" widget="statinfo"/>
+                    </button>
+                </xpath> -->
+               <field name="name" position="before">
+                    <field name="is_prenom" placeholder="Prénom" string="Prénom" attrs="{'invisible': [('is_company','=', True)]}"/>
+                </field>
+               <field name="website" position="after">
+                    <field name="is_facebook"/>
+                </field>
+               <field name="email" position="replace">
+                    <field name="email"/>
+
+
+                    <field name="is_type_contact"/>
+
+                </field>
+                <!-- <field name="state_id" position="replace">
+                    <field name="state_id" options='{"no_open": True}' on_change="onchange_state(state_id)" attrs="{'invisible':True, 'readonly': [('use_parent_address','=',True)]}"/>
+                </field> -->
+                <!-- <field name="title" position="replace">
+                    <field name="title" 
+                           options='{"no_open": True}' 
+                           attrs="{'invisible': [('is_type_contact','!=', 'sportif'),('is_type_contact','!=', 'ambassadeur'),('is_type_contact','!=', 'messager')]}"/>
+                </field> -->
+                <field name="country_id" position="before">
+                    <field name="is_region_id" placeholder="Région" />
+                </field>
+                <field name="user_id" position="replace">
+                    <field string="Titulaire" name="user_id" context="{}" />
+                </field>
+                <!-- <xpath expr="//sheet/group/group/label[@for='type']" position="before">
+                    <field name="is_type_contact"/>
+                    <field name="is_referent_id"/>
+                </xpath> -->
+                <!-- <xpath expr="//td[@class='oe_kanban_title1']/h4/a" position="replace">
+                    <a type="open"><field name="is_prenom"/> <field name="name"/></a>
+                </xpath> -->
+                <!-- <xpath expr="//form[@string='Contact']/sheet/div[@class='oe_title']/h1" position="replace">
+                    <h1><field name="is_prenom" placeholder="Prénom"/><field name="name" placeholder="Nom"/></h1>
+                </xpath> -->
+
+
+                <xpath expr="//sheet/notebook/page[@name='contact_addresses']" position="before">
+                    <page string="CRM" autofocus="autofocus">
+                        <group>
+                            <group string="Sportif" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'sportif')]}">
+                                <field name="is_club_id" domain="[('is_type_contact','=','club')]" />
+                                <field name="is_syndicat_id" domain="[('is_type_contact','=','syndicat')]" />
+                                <field name="is_dernieres_saisons"             />
+                                <field name="is_date_naissance"                />
+                                <field name="is_statut_sportif_id"             />
+                                <field name="is_situation_familiale"/>
+                                <field name="is_niveau_etude"/>
+                                <field name="is_situation_contractuelle"/>
+                                <field name="is_remuneration_annuelle"/>
+                                <field name="is_raison_fin_carriere"/>
+                                <field name="is_projet"/>
+                                <field name="is_nationalite_id"/>
+                            </group>
+                            <group string="Club" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'club')]}">
+                                <field name="is_niveau_id"                    />
+                                <field name="is_opca1"                    />
+                                <field name="is_opca2"                    />
+
+                                <field name="is_budget_annuel"                />
+                                <field name="is_budget_formation"             />
+                                <field name="is_centre_formation"             />
+                                <field name="is_cellule_reconversion"         />
+                                <field name="reseaux_sociaux"                 />
+                                <field name="is_nature_besoins"               />
+                            </group>
+                            <group string="Financeur" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'financeur_institutionnel'),('is_type_contact','!=', 'financeur_prive')]}">
+                                <field name="is_referencement"/>
+                                <field name="is_agrement"/>
+                                <field name="is_activite"/>
+                                <field name="is_ca"                      attrs="{'invisible': [('is_type_contact','!=', 'financeur_prive')]}"/>
+                                <field name="is_taxe_apprentissage"      attrs="{'invisible': [('is_type_contact','!=', 'financeur_prive')]}"/>
+                                <field name="is_prise_en_charge_sportif" attrs="{'invisible': [('is_type_contact','!=', 'financeur_prive')]}"/>
+                            </group>
+                            <group string="Ambassadeur" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'ambassadeur')]}">
+                                <field name="is_contrat_nt"/>
+                                <field name="is_date_fin_contrat"/>
+                                <field name="is_couverture_geographique"/>
+                                <field name="is_nb_contacts"/>
+                                <field name="is_objectif_contact"/>
+                                <field name="is_objectif_contrat"/>
+                            </group>
+                            <group string="Messager" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'messager')]}">
+                                <field name="is_rattachement_nt"/>
+                                <field name="is_prochaine_action"/>
+                                <field name="is_type_action"/>
+                            </group>
+                            <group string="Autres informations" colspan="4">
+                                <field name="is_financeur_ids" 
+                                       widget="many2many_tags"
+                                       domain="['|',('is_type_contact','=','financeur_institutionnel'),('is_type_contact','=','financeur_prive')]" 
+                                       attrs="{'invisible': [('is_type_contact','!=', 'club'),('is_type_contact','!=', 'sportif')]}"/>
+                                <field name="is_apporteur_affaire_id" 
+                                       domain="['|',('is_type_contact','=','ambassadeur'),('is_type_contact','=','messager')]" 
+                                       attrs="{'invisible': [('is_type_contact','!=', 'club'),('is_type_contact','!=', 'sportif')]}"/>
+                                <field name="is_date_qualification" />
+                                <field name="is_nb_salaries" attrs="{'invisible': [('is_company','!=', True)]}"/>
+                                <field name="is_sport_id"  
+                                       attrs="{'invisible': [('is_type_contact','!=', 'club'),
+                                                             ('is_type_contact','!=', 'sportif'),
+                                                             ('is_type_contact','!=', 'ambassadeur'),
+                                                             ('is_type_contact','!=', 'syndicat'),
+                                                             ('is_type_contact','!=', 'federation_ligue')]}"/>
+                                <field name="is_federation_id"  
+                                       attrs="{'invisible': [('is_type_contact','!=', 'club'),
+                                                             ('is_type_contact','!=', 'sportif')]}"
+                                       domain="[('is_type_contact','=','federation_ligue')]" />
+                                <field name="is_statut_id"  
+                                       attrs="{'invisible': [('is_type_contact','!=', 'sportif'),
+                                                             ('is_type_contact','!=', 'messager')]}"/>
+                                <field name="is_historique_nt" 
+                                       attrs="{'invisible': [('is_type_contact','!=', 'federation_ligue'),
+                                                             ('is_type_contact','!=', 'syndicat'),
+                                                             ('is_type_contact','!=', 'ambassadeur'),
+                                                             ('is_type_contact','!=', 'messager')]}"/>
+                                <field name="is_informations_complementaires" />
+                                <field name="is_siret" />
+                                <field name="is_createur_id" readonly="1" />
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>   
+
+    <!-- graph Client -->
+    <!-- <record id="is_client_graph_view" model="ir.ui.view">
+         <field name="name">is_client_graph_view</field>
+         <field name="model">res.partner</field>
+         <field name="arch" type="xml">
+            <graph string="view" type="pivot">
+              <field name="is_date_qualification"    type="row"/>
+              <field name="is_apporteur_affaire_id"  type="col"/>
+             </graph>
+         </field>
+    </record>
+ -->
+
+    <!-- Menu Clients -->
+    <record model="ir.ui.view" id="is_client_tree_view">
+        <field name="name">is_client_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="is_type_contact"/>
+                <field name="is_sport_id"/>
+                <field name="is_referent_id"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_createur_id" />
+            </tree>
+        </field>
+    </record>
+    <record id="is_client_action" model="ir.actions.act_window">
+        <field name="name">Clients</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_client_tree_view"/>
+        <field name="view_mode">tree,kanban,form,graph</field>
+    </record>
+    <menuitem action="is_client_action" id="menu_crm_client" parent="menu_crm_crm" sequence="10"/>
+
+
+    <record id="is_view_res_partner_filter" model="ir.ui.view">
+        <field name="name">is.res.partner.select</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <field name="category_id" position="after">
+                <field name="is_prenom"/>
+                <field name="is_club_id"/>
+                <field name="is_financeur_ids"/>
+                <field name="is_type_contact"/>
+                <field name="is_sport_id"/>
+                <field name="is_niveau_id"/>
+                <field name="is_statut_id"/>
+                <field name="is_centre_formation"/>
+                <field name="is_cellule_reconversion"/>
+                <field name="is_statut_sportif_id"/>
+                <field name="is_referencement"/>
+                <field name="is_agrement"/>
+                <field name="is_region_id"/>
+                <field name="city"/>
+                <field name="is_createur_id" />
+            </field>
+            <!-- <filter help="My Partners" position="before">
+                <filter string="Sans club" name="sans_club" domain="[('is_club_id','=',False)]"/>
+            </filter> -->
+            <!-- <filter string="Salesperson" position="before">
+                <filter string="Club" context="{'group_by': 'is_club_id'}"/>
+                <filter string="Apporteur d'affaire" context="{'group_by': 'is_apporteur_affaire_id'}"/>
+                <filter string="Référent" context="{'group_by': 'is_referent_id'}"/>
+                <filter string="Créateur" context="{'group_by': 'is_createur_id'}"/>
+            </filter>
+            <group string="Group By" position="after">
+                <group string="Afficher les champs">
+                    <filter string="Agrément" context="{'invisible_is_agrement': False}" />
+                </group>
+            </group> -->
+        </field>
+    </record>
+
+
+    <!-- Menu Clubs -->
+    <record model="ir.ui.view" id="is_club_tree_view">
+        <field name="name">is_club_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_sport_id"/>
+                <field name="is_niveau_id"/>
+                <field name="is_statut_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_club_action" model="ir.actions.act_window">
+        <field name="name">Clubs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_club_tree_view"/>
+        <field name="domain">[('is_type_contact','=','club')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_club_action" id="menu_crm_club" parent="menu_crm_crm" sequence="20"/>
+
+
+    <!-- Menu Financeur institutionnel -->
+    <record model="ir.ui.view" id="is_financeur_institutionnel_tree_view">
+        <field name="name">is_financeur_institutionnel_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_referencement"/>
+                <field name="is_agrement"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_financeur_institutionnel_action" model="ir.actions.act_window">
+        <field name="name">Financeurs institutionnels</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_financeur_institutionnel_tree_view"/>
+        <field name="domain">[('is_type_contact','=','financeur_institutionnel')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_financeur_institutionnel_action" id="menu_crm_financeur_institutionnel" parent="menu_crm_crm" sequence="30"/>
+
+
+    <!-- Menu Financeur privé -->
+    <record model="ir.ui.view" id="is_financeur_prive_tree_view">
+        <field name="name">is_financeur_prive_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_siret"/>
+                <field name="is_activite"/>
+                <field name="is_ca"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_financeur_prive_action" model="ir.actions.act_window">
+        <field name="name">Financeurs privés</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_financeur_prive_tree_view"/>
+        <field name="domain">[('is_type_contact','=','financeur_prive')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_financeur_prive_action" id="menu_crm_financeur_prive" parent="menu_crm_crm" sequence="30"/>
+
+
+    <!-- Menu Fédération - Ligue -->
+    <record model="ir.ui.view" id="is_federation_ligue_tree_view">
+        <field name="name">is_federation_ligue_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_historique_nt"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_federation_ligue_action" model="ir.actions.act_window">
+        <field name="name">Fédérations - Ligues</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_federation_ligue_tree_view"/>
+        <field name="domain">[('is_type_contact','=','federation_ligue')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_federation_ligue_action" id="menu_crm_federation_ligue" parent="menu_crm_crm" sequence="30"/>
+
+
+    <!-- Menu Syndicats -->
+    <record model="ir.ui.view" id="is_syndicat_tree_view">
+        <field name="name">is_syndicat_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_historique_nt"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_syndicat_action" model="ir.actions.act_window">
+        <field name="name">Syndicats</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_syndicat_tree_view"/>
+        <field name="domain">[('is_type_contact','=','syndicat')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_syndicat_action" id="menu_crm_syndicat" parent="menu_crm_crm" sequence="30"/>
+
+
+    <!-- Menu ambassadeur -->
+    <record model="ir.ui.view" id="is_ambassadeur_tree_view">
+        <field name="name">is_ambassadeur_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_historique_nt"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_ambassadeur_action" model="ir.actions.act_window">
+        <field name="name">Ambassadeur</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_ambassadeur_tree_view"/>
+        <field name="domain">[('is_type_contact','=','ambassadeur')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_ambassadeur_action" id="menu_crm_ambassadeur" parent="menu_crm_crm" sequence="30"/>
+
+
+    <!-- Menu Messager -->
+    <record model="ir.ui.view" id="is_messager_tree_view">
+        <field name="name">is_messager_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_historique_nt"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_messager_action" model="ir.actions.act_window">
+        <field name="name">Messager</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_messager_tree_view"/>
+        <field name="domain">[('is_type_contact','=','messager')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_messager_action" id="menu_crm_messager" parent="menu_crm_crm" sequence="40"/>
+
+
+    <!-- Région -->
+    <record model="ir.ui.view" id="is_region_tree_view">
+        <field name="name">is.region.tree</field>
+        <field name="model">is.region</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_region_form_view">
+        <field name="name">is.region.form</field>
+        <field name="model">is.region</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_region_action" model="ir.actions.act_window">
+        <field name="name">Région</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.region</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_region_action" id="menu_region" parent="menu_crm_tables" sequence="10"/>
+
+
+    <!-- Sport -->
+    <record model="ir.ui.view" id="is_sport_tree_view">
+        <field name="name">is.sport.tree</field>
+        <field name="model">is.sport</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_sport_form_view">
+        <field name="name">is.sport.form</field>
+        <field name="model">is.sport</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_sport_action" model="ir.actions.act_window">
+        <field name="name">Sport</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.sport</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_sport_action" id="menu_sport" parent="menu_crm_tables" sequence="20"/>
+
+
+    <!-- Niveau -->
+    <record model="ir.ui.view" id="is_niveau_tree_view">
+        <field name="name">is.niveau.tree</field>
+        <field name="model">is.niveau</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_niveau_form_view">
+        <field name="name">is.niveau.form</field>
+        <field name="model">is.niveau</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_niveau_action" model="ir.actions.act_window">
+        <field name="name">Niveau</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.niveau</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_niveau_action" id="menu_niveau" parent="menu_crm_tables" sequence="30"/>
+
+
+    <!-- Statut -->
+    <record model="ir.ui.view" id="is_statut_tree_view">
+        <field name="name">is.statut.tree</field>
+        <field name="model">is.statut</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_statut_form_view">
+        <field name="name">is.statut.form</field>
+        <field name="model">is.statut</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_statut_action" model="ir.actions.act_window">
+        <field name="name">Statut contractuel</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.statut</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_statut_action" id="menu_statut" parent="menu_crm_tables" sequence="40"/>
+
+
+    <!-- Statut sportif-->
+    <record model="ir.ui.view" id="is_statut_sportif_tree_view">
+        <field name="name">is.statut.sportif.tree</field>
+        <field name="model">is.statut.sportif</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_statut_sportif_form_view">
+        <field name="name">is.statut.sportif.form</field>
+        <field name="model">is.statut.sportif</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_statut_sportif_action" model="ir.actions.act_window">
+        <field name="name">Statut du sportif</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.statut.sportif</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_statut_sportif_action" id="menu_statut_sportif" parent="menu_crm_tables" sequence="50"/>
+
+
+    <!-- Base documentaire-->
+    <record model="ir.ui.view" id="is_base_documentaire_tree_view">
+        <field name="name">is.base.documentaire.tree</field>
+        <field name="model">is.base.documentaire</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_base_documentaire_form_view">
+        <field name="name">is.base.documentaire.form</field>
+        <field name="model">is.base.documentaire</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_base_documentaire_action" model="ir.actions.act_window">
+        <field name="name">Base documentaire</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.base.documentaire</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="is_base_documentaire_action" id="menu_base_documentaire" parent="menu_crm_documents" sequence="10"/>
+
+    </data>
+</odoo>
+
