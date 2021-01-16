@@ -64,8 +64,8 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
-                <!-- <xpath expr="//div[@name='buttons']" position="inside">
-                    <button class="oe_inline oe_stat_button" type="action"
+                <xpath expr="//div[@name='button_box']/button[1]" position="before">
+                   <button class="oe_inline oe_stat_button" type="action"
                             attrs="{'invisible': [('is_type_contact', '!=', 'club')]}"
                             name="%(is_nouvelle_trajectoire.is_sportif_action2)d"
                             icon="fa-users">
@@ -78,7 +78,7 @@
                             icon="fa-users">
                         <field string="Club/Sportif" name="is_club_sportif_count" widget="statinfo"/>
                     </button>
-                </xpath> -->
+                </xpath>
                <field name="name" position="before">
                     <field name="is_prenom" placeholder="Prénom" string="Prénom" attrs="{'invisible': [('is_company','=', True)]}"/>
                 </field>
@@ -87,10 +87,7 @@
                 </field>
                <field name="email" position="replace">
                     <field name="email"/>
-
-
                     <field name="is_type_contact"/>
-
                 </field>
                 <!-- <field name="state_id" position="replace">
                     <field name="state_id" options='{"no_open": True}' on_change="onchange_state(state_id)" attrs="{'invisible':True, 'readonly': [('use_parent_address','=',True)]}"/>
@@ -106,10 +103,13 @@
                 <field name="user_id" position="replace">
                     <field string="Titulaire" name="user_id" context="{}" />
                 </field>
-                <!-- <xpath expr="//sheet/group/group/label[@for='type']" position="before">
+
+                <xpath expr="//sheet/group/group/field[@name='type']" position="before">
                     <field name="is_type_contact"/>
                     <field name="is_referent_id"/>
-                </xpath> -->
+                </xpath>
+
+
                 <!-- <xpath expr="//td[@class='oe_kanban_title1']/h4/a" position="replace">
                     <a type="open"><field name="is_prenom"/> <field name="name"/></a>
                 </xpath> -->
@@ -269,20 +269,20 @@
                 <field name="city"/>
                 <field name="is_createur_id" />
             </field>
-            <!-- <filter help="My Partners" position="before">
+            <filter name="type_person" position="before">
                 <filter string="Sans club" name="sans_club" domain="[('is_club_id','=',False)]"/>
-            </filter> -->
-            <!-- <filter string="Salesperson" position="before">
-                <filter string="Club" context="{'group_by': 'is_club_id'}"/>
-                <filter string="Apporteur d'affaire" context="{'group_by': 'is_apporteur_affaire_id'}"/>
-                <filter string="Référent" context="{'group_by': 'is_referent_id'}"/>
-                <filter string="Créateur" context="{'group_by': 'is_createur_id'}"/>
             </filter>
-            <group string="Group By" position="after">
+            <filter name="salesperson" position="before">
+                <filter name="club"      string="Club" context="{'group_by': 'is_club_id'}"/>
+                <filter name="apporteur" string="Apporteur d'affaire" context="{'group_by': 'is_apporteur_affaire_id'}"/>
+                <filter name="referent"  string="Référent" context="{'group_by': 'is_referent_id'}"/>
+                <filter name="createur"  string="Créateur" context="{'group_by': 'is_createur_id'}"/>
+            </filter>
+            <group name="group_by" position="after">
                 <group string="Afficher les champs">
-                    <filter string="Agrément" context="{'invisible_is_agrement': False}" />
+                    <filter name="agrement" string="Agrément" context="{'invisible_is_agrement': False}" />
                 </group>
-            </group> -->
+            </group>
         </field>
     </record>
 

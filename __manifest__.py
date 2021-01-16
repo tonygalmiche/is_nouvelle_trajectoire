@@ -27,6 +27,7 @@
         "sale_stock",
         "stock",
         "stock_account",
+        "crm_phonecall",
     ], 
     "init_xml" : [],
     "demo_xml" : [],
