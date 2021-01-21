@@ -649,6 +649,11 @@
                         <field name="name"/>
                     </group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -659,6 +664,14 @@
         <field name="view_mode">tree,form</field>
     </record>
     <menuitem action="is_base_documentaire_action" id="menu_base_documentaire" parent="menu_crm_documents" sequence="10"/>
+
+
+
+    <menuitem action="is_base_documentaire_action" id="menu_base_documentaire" parent="menu_crm_documents" sequence="10"/>
+
+    <menuitem id="mail.menu_root_discuss" parent="base.menu_custom" />
+
+
 
     </data>
 </odoo>

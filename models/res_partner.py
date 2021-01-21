@@ -142,5 +142,6 @@ class is_statut_sportif(models.Model):
 
 class is_base_documentaire(models.Model):
     _name = 'is.base.documentaire'
+    _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
     _description = "Base documentaire"
     name = fields.Char("Nom du document", required=True)
