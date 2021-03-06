@@ -578,8 +578,7 @@
                 <field name="is_nb_activite_en_cours" sum="Total"/>
                 <field name="is_nb_activite_terminee" sum="Total"/>
                 <field name="is_date_derniere_activite"/>
-                <field name="is_alerte_activite"      invisible="1"/>
-                <button class="oe_stat_button" icon="fa-exclamation" string="Pas d'activité depuis 6 mois" attrs="{'invisible': [('is_alerte_activite', '=', False)]}"/>
+                <field name="is_alerte_activite"/>
             </tree>
         </field>
     </record>
