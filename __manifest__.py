@@ -32,9 +32,13 @@
     "init_xml" : [],
     "demo_xml" : [],
     "data" : [
+        "security/res.groups.xml",
         "security/partner_access_data.xml",
         "security/ir.model.access.csv",
+        "views/is_suivi_activite_view.xml",
         "views/res_partner_view.xml",
+        "views/res_partner_data.xml",
+        "views/menu.xml",
     ],
     "installable": True,
     "active": False,

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- is.suivi.activite -->
+    <record model="ir.ui.view" id="is_suivi_activite_tree_view">
+        <field name="name">is.suivi.activite.tree</field>
+        <field name="model">is.suivi.activite</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="createur_id"/>
+                <field name="type_activite_id"/>
+                <field name="partner_id"/>
+                <field name="date_prevue"/>
+                <field name="date_realisee"/>
+                <field name="commentaire"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_suivi_activite_form_view">
+        <field name="name">is.suivi.activite.form</field>
+        <field name="model">is.suivi.activite</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="createur_id"/>
+                        <field name="type_activite_id"/>
+                        <field name="partner_id"/>
+                        <field name="date_prevue"/>
+                        <field name="date_realisee"/>
+                        <field name="commentaire"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_suivi_activite_search" model="ir.ui.view">
+        <field name="name">is_suivi_activite_search</field>
+        <field name="model">is.suivi.activite</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="createur_id"/>
+                <field name="type_activite_id"/>
+                <field name="partner_id"/>
+                <field name="date_prevue"/>
+                <field name="date_realisee"/>
+                <field name="commentaire"/>
+            </search>
+        </field>
+    </record>
+    <record id="is_suivi_activite_action" model="ir.actions.act_window">
+        <field name="name">Suivi d'activité</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.suivi.activite</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="is_suivi_activite_action2" model="ir.actions.act_window">
+        <field name="name">Suivi d'activité</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.suivi.activite</field>
+        <field name="context">{'default_partner_id': active_id, 'search_default_partner_id': active_id}</field>
+        <field name="domain">[('partner_id','=',active_id)]</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+
+
+    <!-- is.suivi.activite.type -->
+    <record model="ir.ui.view" id="is_suivi_activite_type_tree_view">
+        <field name="name">is.suivi.activite.type.tree</field>
+        <field name="model">is.suivi.activite.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_suivi_activite_type_form_view">
+        <field name="name">is.suivi.activite.type.form</field>
+        <field name="model">is.suivi.activite.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="is_suivi_activite_type_search" model="ir.ui.view">
+        <field name="name">is_suivi_activite_search</field>
+        <field name="model">is.suivi.activite.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+    <record id="is_suivi_activite_type_action" model="ir.actions.act_window">
+        <field name="name">Type d'activité</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">is.suivi.activite.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

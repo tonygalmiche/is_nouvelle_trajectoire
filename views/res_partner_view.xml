@@ -5,8 +5,21 @@
 
         <menuitem name="CRM"       id="menu_crm"           sequence="1"/>
         <menuitem name="CRM"       id="menu_crm_crm"       sequence="10"  parent="menu_crm"/>
-        <menuitem name="Documents" id="menu_crm_documents" sequence="20"  parent="menu_crm"/>
-        <menuitem name="Tables"    id="menu_crm_tables"    sequence="30"  parent="menu_crm"/>
+        <menuitem name="Documents" id="menu_crm_documents" sequence="20"  parent="menu_crm" groups="sales_team.group_sale_manager"/>
+
+
+
+        <record id="calculer_suivi_activite_actions_server" model="ir.actions.server">
+            <field name="name">Calculer suivi activité</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">
+    action = model._calculer_suivi_activite_action()
+            </field>
+        </record>
+
 
 
         <!-- Menu Sportifs -->
@@ -57,7 +70,7 @@
             <field name="domain">["|",('is_type_contact','=','club'),('is_type_contact','=','sportif')]</field>
             <field name="view_mode">tree,kanban,form</field>
         </record>
-        <menuitem action="is_sportif_action" id="menu_crm_sportif" parent="menu_crm_crm" sequence="30"/>
+        <menuitem action="is_sportif_action" id="menu_crm_sportif" parent="menu_crm_crm" sequence="30" groups="is_group_sportif"/>
 
         <record model="ir.ui.view" id="is_view_partner_form">
             <field name="name">is_view_partner_form</field>
@@ -71,12 +84,22 @@
                             icon="fa-users">
                         <field string="Sportifs" name="is_sportif_count" widget="statinfo"/>
                     </button>
-                    <button class="oe_inline oe_stat_button" type="action"
-                            attrs="{'invisible': [('is_type_contact', '!=', 'financeur_institutionnel'),
-                                                  ('is_type_contact', '!=', 'financeur_prive')]}"
-                            name="%(is_nouvelle_trajectoire.is_sportif_action3)d"
-                            icon="fa-users">
+                    <button 
+                        class="oe_inline oe_stat_button" type="action"
+                        attrs="{'invisible': [('is_type_contact', '!=', 'financeur_institutionnel'),
+                                              ('is_type_contact', '!=', 'financeur_prive')]}"
+                        name="%(is_nouvelle_trajectoire.is_sportif_action3)d"
+                        icon="fa-users"
+                        groups="is_nouvelle_trajectoire.is_group_club"
+                    >
                         <field string="Club/Sportif" name="is_club_sportif_count" widget="statinfo"/>
+                    </button>
+
+                    <button class="oe_inline oe_stat_button" type="action"
+                            attrs="{'invisible': False}"
+                            name="%(is_nouvelle_trajectoire.is_suivi_activite_action2)d"
+                            icon="fa-users">
+                        <field string="Suivi d'activité" name="is_suivi_activite_count" widget="statinfo"/>
                     </button>
                 </xpath>
                <field name="name" position="before">
@@ -108,16 +131,6 @@
                     <field name="is_type_contact"/>
                     <field name="is_referent_id"/>
                 </xpath>
-
-
-                <!-- <xpath expr="//td[@class='oe_kanban_title1']/h4/a" position="replace">
-                    <a type="open"><field name="is_prenom"/> <field name="name"/></a>
-                </xpath> -->
-                <!-- <xpath expr="//form[@string='Contact']/sheet/div[@class='oe_title']/h1" position="replace">
-                    <h1><field name="is_prenom" placeholder="Prénom"/><field name="name" placeholder="Nom"/></h1>
-                </xpath> -->
-
-
                 <xpath expr="//sheet/notebook/page[@name='contact_addresses']" position="before">
                     <page string="CRM" autofocus="autofocus">
                         <group>
@@ -202,22 +215,39 @@
                             </group>
                         </group>
                     </page>
+                    <page string="Suivi d'activité">
+                        <group groups="sales_team.group_sale_manager">
+                            <group>
+                                <field name="is_budget_previsionnel" />
+                                <field name="is_total_facture" />
+                                <field name="is_ecart_budget" />
+                            </group>
+                            <group>
+                                <field name="is_nb_activite_en_cours"/>
+                                <field name="is_nb_activite_terminee"/>
+                                <field name="is_date_derniere_activite"/>
+                                <field 
+                                    name="is_alerte_activite"
+                                    style="background-color:orange;font-size:11pt" 
+                                    attrs="{'invisible': [('is_alerte_activite','=', False)],'readonly':True}"
+                                />
+                            </group>
+                        </group>
+                        <group>
+                            <field name="is_suivi_activite_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="createur_id"/>
+                                    <field name="type_activite_id"/>
+                                    <field name="date_prevue"/>
+                                    <field name="date_realisee"/>
+                                    <field name="commentaire"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
                 </xpath>
             </field>
         </record>   
-
-    <!-- graph Client -->
-    <!-- <record id="is_client_graph_view" model="ir.ui.view">
-         <field name="name">is_client_graph_view</field>
-         <field name="model">res.partner</field>
-         <field name="arch" type="xml">
-            <graph string="view" type="pivot">
-              <field name="is_date_qualification"    type="row"/>
-              <field name="is_apporteur_affaire_id"  type="col"/>
-             </graph>
-         </field>
-    </record>
- -->
 
     <!-- Menu Clients -->
     <record model="ir.ui.view" id="is_client_tree_view">
@@ -228,6 +258,8 @@
                 <field name="name"/>
                 <field name="is_prenom"/>
                 <field name="is_type_contact"/>
+                <field name="is_group_id" optional="hide"/>
+                <field name="parent_id"   optional="hide"/>
                 <field name="is_sport_id"/>
                 <field name="is_referent_id"/>
                 <field name="phone"/>
@@ -244,7 +276,19 @@
         <field name="view_id" ref="is_client_tree_view"/>
         <field name="view_mode">tree,kanban,form,graph</field>
     </record>
-    <menuitem action="is_client_action" id="menu_crm_client" parent="menu_crm_crm" sequence="10"/>
+
+    <record id="menu_crm_client" model="ir.ui.menu">
+        <field name="name">Clients</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('menu_crm_crm')"/>
+        <field name="action"    ref="is_client_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('sales_team.group_sale_manager'),
+        ])]"/>
+    </record>
+
+
+
 
 
     <record id="is_view_res_partner_filter" model="ir.ui.view">
@@ -268,6 +312,7 @@
                 <field name="is_region_id"/>
                 <field name="city"/>
                 <field name="is_createur_id" />
+                <field name="is_alerte_activite" />
             </field>
             <filter name="type_person" position="before">
                 <filter string="Sans club" name="sans_club" domain="[('is_club_id','=',False)]"/>
@@ -311,7 +356,7 @@
         <field name="domain">[('is_type_contact','=','club')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_club_action" id="menu_crm_club" parent="menu_crm_crm" sequence="20"/>
+    <menuitem action="is_club_action" id="menu_crm_club" parent="menu_crm_crm" sequence="20" groups="is_group_club"/>
 
 
     <!-- Menu Financeur institutionnel -->
@@ -337,7 +382,7 @@
         <field name="domain">[('is_type_contact','=','financeur_institutionnel')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_financeur_institutionnel_action" id="menu_crm_financeur_institutionnel" parent="menu_crm_crm" sequence="30"/>
+    <menuitem action="is_financeur_institutionnel_action" id="menu_crm_financeur_institutionnel" parent="menu_crm_crm" sequence="30"  groups="is_group_financeur_institutionnel"/>
 
 
     <!-- Menu Financeur privé -->
@@ -364,7 +409,7 @@
         <field name="domain">[('is_type_contact','=','financeur_prive')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_financeur_prive_action" id="menu_crm_financeur_prive" parent="menu_crm_crm" sequence="30"/>
+    <menuitem action="is_financeur_prive_action" id="menu_crm_financeur_prive" parent="menu_crm_crm" sequence="30"  groups="is_group_financeur_prive"/>
 
 
     <!-- Menu Fédération - Ligue -->
@@ -389,7 +434,7 @@
         <field name="domain">[('is_type_contact','=','federation_ligue')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_federation_ligue_action" id="menu_crm_federation_ligue" parent="menu_crm_crm" sequence="30"/>
+    <menuitem action="is_federation_ligue_action" id="menu_crm_federation_ligue" parent="menu_crm_crm" sequence="30" groups="is_group_federation_ligue"/>
 
 
     <!-- Menu Syndicats -->
@@ -414,7 +459,7 @@
         <field name="domain">[('is_type_contact','=','syndicat')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_syndicat_action" id="menu_crm_syndicat" parent="menu_crm_crm" sequence="30"/>
+    <menuitem action="is_syndicat_action" id="menu_crm_syndicat" parent="menu_crm_crm" sequence="30" groups="is_group_syndicat"/>
 
 
     <!-- Menu ambassadeur -->
@@ -433,14 +478,14 @@
         </field>
     </record>
     <record id="is_ambassadeur_action" model="ir.actions.act_window">
-        <field name="name">Ambassadeur</field>
+        <field name="name">Ambassadeurs</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">res.partner</field>
         <field name="view_id" ref="is_ambassadeur_tree_view"/>
         <field name="domain">[('is_type_contact','=','ambassadeur')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_ambassadeur_action" id="menu_crm_ambassadeur" parent="menu_crm_crm" sequence="30"/>
+    <menuitem action="is_ambassadeur_action" id="menu_crm_ambassadeur" parent="menu_crm_crm" sequence="30"  groups="is_group_ambassadeur"/>
 
 
     <!-- Menu Messager -->
@@ -459,14 +504,95 @@
         </field>
     </record>
     <record id="is_messager_action" model="ir.actions.act_window">
-        <field name="name">Messager</field>
+        <field name="name">Messagers</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">res.partner</field>
         <field name="view_id" ref="is_messager_tree_view"/>
         <field name="domain">[('is_type_contact','=','messager')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_messager_action" id="menu_crm_messager" parent="menu_crm_crm" sequence="40"/>
+    <menuitem action="is_messager_action" name="Messagers" id="menu_crm_messagers" parent="menu_crm_crm" sequence="40"  groups="is_group_messager"/>
+
+
+   <!-- Menu Entreprises -->
+    <record model="ir.ui.view" id="is_entreprise_tree_view">
+        <field name="name">is_entreprise_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+                <field name="is_historique_nt"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_entreprise_action" model="ir.actions.act_window">
+        <field name="name">Entreprises</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_entreprise_tree_view"/>
+        <field name="domain">[('is_type_contact','=','entreprise')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <menuitem action="is_entreprise_action" id="menu_crm_messager" parent="menu_crm_crm" sequence="50"  groups="is_group_entreprise"/>
+
+
+
+    <!-- Suivi du budget -->
+    <record id="is_suivi_budget_pivot" model="ir.ui.view">
+        <field name="name">is_suivi_budget_pivot</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="is_referent_id"         type="row"/>
+                <field name="is_type_contact"        type="col"/>
+                <field name="is_budget_previsionnel" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    <record id="is_suivi_budget_graph" model="ir.ui.view">
+        <field name="name">is_suivi_budget_graph</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <graph type="bar" orientation="vertical" stacked="False">
+                <field name="is_referent_id"        type="row"/>
+                <field name="is_budget_previsionnel" type="measure"/>
+            </graph>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="is_suivi_budget_tree_view">
+        <field name="name">is_suivi_budget_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="is_type_contact"/>
+                <field name="is_referent_id"/>
+                <field name="is_budget_previsionnel"  sum="Total"/>
+                <field name="is_total_facture"        sum="Total"/>
+                <field name="is_ecart_budget"         sum="Total"/>
+                <field name="is_nb_activite_en_cours" sum="Total"/>
+                <field name="is_nb_activite_terminee" sum="Total"/>
+                <field name="is_date_derniere_activite"/>
+                <field name="is_alerte_activite"      invisible="1"/>
+                <button class="oe_stat_button" icon="fa-exclamation" string="Pas d'activité depuis 6 mois" attrs="{'invisible': [('is_alerte_activite', '=', False)]}"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_suivi_budget_action" model="ir.actions.act_window">
+        <field name="name">Suivi du budget</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_suivi_budget_tree_view"/>
+        <field name="domain">[('is_budget_previsionnel','>',0)]</field>
+        <field name="view_mode">tree,kanban,form,graph,pivot</field>
+    </record>
+
+
 
 
     <!-- Région -->
@@ -498,7 +624,6 @@
         <field name="res_model">is.region</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem action="is_region_action" id="menu_region" parent="menu_crm_tables" sequence="10"/>
 
 
     <!-- Sport -->
@@ -530,7 +655,6 @@
         <field name="res_model">is.sport</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem action="is_sport_action" id="menu_sport" parent="menu_crm_tables" sequence="20"/>
 
 
     <!-- Niveau -->
@@ -562,7 +686,6 @@
         <field name="res_model">is.niveau</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem action="is_niveau_action" id="menu_niveau" parent="menu_crm_tables" sequence="30"/>
 
 
     <!-- Statut -->
@@ -594,7 +717,6 @@
         <field name="res_model">is.statut</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem action="is_statut_action" id="menu_statut" parent="menu_crm_tables" sequence="40"/>
 
 
     <!-- Statut sportif-->
@@ -626,7 +748,7 @@
         <field name="res_model">is.statut.sportif</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem action="is_statut_sportif_action" id="menu_statut_sportif" parent="menu_crm_tables" sequence="50"/>
+
 
 
     <!-- Base documentaire-->

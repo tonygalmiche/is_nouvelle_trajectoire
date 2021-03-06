@@ -1,10 +1,23 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+
+
+    @api.model
+    def _calculer_suivi_activite_ir_cron(self):
+        self.env['res.partner'].search([('is_budget_previsionnel','>',0)])._compute_suivi_activite()
+        return True
+
+
+    def _calculer_suivi_activite_action(self):
+        self.browse(self.env.context['active_ids'])._compute_suivi_activite()
+ 
 
     def _compute_sportif_count(self):
         for obj in self:
@@ -18,8 +31,80 @@ class ResPartner(models.Model):
             obj.is_club_sportif_count = nb
 
 
+    @api.depends('is_type_contact','parent_id.is_type_contact')
+    def _compute_group_id(self):
+        for obj in self:
+            name="sales_team.group_sale_manager"
+            type_contact=False
+            if obj.is_type_contact:
+                type_contact = obj.is_type_contact
+            else:
+                if obj.parent_id.is_type_contact:
+                    type_contact = obj.parent_id.is_type_contact
+            if type_contact:
+                name="is_nouvelle_trajectoire.is_group_"+type_contact
+            grp = self.env.ref(name)
+            if grp.id:
+                obj.is_group_id=grp.id
+
+
+    @api.depends('is_suivi_activite_ids')
+    def _compute_suivi_activite_count(self):
+        for obj in self:
+            nb = len(obj.is_suivi_activite_ids)
+            obj.is_suivi_activite_count=nb
+
+
+    @api.depends('is_suivi_activite_ids','is_budget_previsionnel')
+    def _compute_suivi_activite(self):
+        for obj in self:
+            nb=len(self.env['is.suivi.activite'].search([('partner_id','=',obj.id),('date_realisee','=',False)]))
+            obj.is_nb_activite_en_cours=nb
+            nb=len(self.env['is.suivi.activite'].search([('partner_id','=',obj.id),('date_realisee','!=',False)]))
+            obj.is_nb_activite_terminee=nb
+            ca = obj.get_total_facture()
+            obj.is_total_facture = ca
+            ecart = ca - obj.is_budget_previsionnel
+            obj.is_ecart_budget = ecart
+            d = obj.get_date_derniere_activite()
+            obj.is_date_derniere_activite = d
+            limite = date.today() + relativedelta(months=-6)
+            alerte=False
+            if obj.is_budget_previsionnel and d and d<limite:
+                alerte = "Pas d'activité depuis 6 mois"
+            if obj.is_budget_previsionnel and nb==0:
+                alerte = "Pas d'activité"
+            obj.is_alerte_activite=alerte
+
+
+    def get_total_facture(self):
+        for obj in self:
+            ca=0
+            if type(obj.id) == int:
+                sql = """
+                    SELECT sum(amount_untaxed_signed) 
+                    FROM account_move 
+                    WHERE move_type in ('out_invoice','out_refund') and state='posted' and partner_id=%s
+                """
+                self.env.cr.execute(sql,[obj.id])
+                res = self._cr.fetchall()
+                for line in res:
+                    ca=line[0] or 0
+            return ca
+
+
+    def get_date_derniere_activite(self):
+        for obj in self:
+            d = False
+            for line in obj.is_suivi_activite_ids:
+                if line.date_realisee:
+                    if not d or line.date_realisee>d:
+                        d=line.date_realisee
+            return d
+
+
     is_prenom = fields.Char("Prénom", size=255)
-    is_createur_id = fields.Many2one('res.users', 'Créateur de la fiche', required=False)
+    is_createur_id = fields.Many2one('res.users', 'Créateur de la fiche', required=False, default=lambda self: self.env.user)
     is_club_id = fields.Many2one('res.partner', 'Club', required=False)
     is_federation_id = fields.Many2one('res.partner', 'Fédération', required=False)
     is_syndicat_id = fields.Many2one('res.partner', 'Syndicat', required=False)
@@ -40,8 +125,13 @@ class ResPartner(models.Model):
             ('syndicat'                 , 'Syndicat'),
             ('ambassadeur'              , "Ambassadeur"),
             ('messager'                 , "Messager"),
+            ('entreprise'               , "Entreprise"),
         ],
         'Type de contact', required=False)
+
+    is_group_id = fields.Many2one('res.groups', 'Groupe', compute='_compute_group_id', store=True)
+
+
     is_referent_id = fields.Many2one('res.users', 'Référent', required=False)
 
     # Club
@@ -104,10 +194,16 @@ class ResPartner(models.Model):
     is_prochaine_action =  fields.Date("Prochaine action")
     is_type_action =  fields.Char("Type d'action")
 
-
-    # _defaults = {
-    #     'is_createur_id = lambda obj, cr, uid, ctx=None: uid,
-    # }
+    #Suivi activité / Budget
+    is_suivi_activite_ids     = fields.One2many('is.suivi.activite', 'partner_id', "Suivi d'activité")
+    is_budget_previsionnel    = fields.Integer("Budget prévisionnel")
+    is_suivi_activite_count   = fields.Integer(compute=_compute_suivi_activite_count, string="# Suivi d'activité")
+    is_nb_activite_en_cours   = fields.Integer(compute=_compute_suivi_activite      , string="Nb activités en cours", store=True, readonly=True)
+    is_nb_activite_terminee   = fields.Integer(compute=_compute_suivi_activite      , string="Nb activités terminée", store=True, readonly=True)
+    is_total_facture          = fields.Integer(compute=_compute_suivi_activite      , string="Total facturé"        , store=True, readonly=True)
+    is_ecart_budget           = fields.Integer(compute=_compute_suivi_activite      , string="Ecart budget"         , store=True, readonly=True)
+    is_alerte_activite        = fields.Text(   compute=_compute_suivi_activite      , string="Alerte"               , store=True, readonly=True)
+    is_date_derniere_activite = fields.Date(   compute=_compute_suivi_activite      , string="Dernière activité"    , store=True, readonly=True)
 
 
 class is_region(models.Model):

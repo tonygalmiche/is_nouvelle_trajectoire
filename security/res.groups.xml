@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="is_nouvelle_trajectoire_module_category">
+        <field name="name">Groupes Nouvelle trajectoire</field>
+        <field name="description">Groupes Nouvelle trajectoire</field>
+        <field name="sequence">1</field>
+    </record>
+    <record model="res.groups" id="is_group_club">
+        <field name="name">Club</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_sportif">
+        <field name="name">Sportif</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_financeur_institutionnel">
+        <field name="name">Financeur institutionnel</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_financeur_prive">
+        <field name="name">Financeur privé</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_federation_ligue">
+        <field name="name">Fédération - Ligue</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_syndicat">
+        <field name="name">Syndicat</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_ambassadeur">
+        <field name="name">Ambassadeur</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_messager">
+        <field name="name">Messager</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_entreprise">
+        <field name="name">Entreprise</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+</odoo>
