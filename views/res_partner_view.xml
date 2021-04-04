@@ -3,9 +3,6 @@
 <odoo>
     <data>
 
-        <menuitem name="CRM"       id="menu_crm"           sequence="1"/>
-        <menuitem name="CRM"       id="menu_crm_crm"       sequence="10"  parent="menu_crm"/>
-        <menuitem name="Documents" id="menu_crm_documents" sequence="20"  parent="menu_crm" groups="sales_team.group_sale_manager"/>
 
 
 
@@ -35,11 +32,12 @@
                     <field name="email"/>
                     <field name="is_club_id"/>
                     <field name="is_sport_id"/>
-                    <field name="is_date_naissance"/>
-                    <field name="is_statut_sportif_id"/>
-                    <field name="is_agrement"     invisible="context.get('invisible_is_agrement', True)"/>
-                    <field name="is_financeur_ids"/>
-                    <field name="is_type_contact"/>
+                    <field name="is_date_naissance"    optional="show"/>
+                    <field name="is_statut_sportif_id" optional="show"/>
+                    <field name="is_agrement"          optional="hide"/>
+                    <field name="is_financeur_ids"     optional="show"/>
+                    <field name="is_type_contact"      optional="hide"/>
+                    <field name="is_typologie_client"  optional="show"/>
                 </tree>
             </field>
         </record>
@@ -70,7 +68,6 @@
             <field name="domain">["|",('is_type_contact','=','club'),('is_type_contact','=','sportif')]</field>
             <field name="view_mode">tree,kanban,form</field>
         </record>
-        <menuitem action="is_sportif_action" id="menu_crm_sportif" parent="menu_crm_crm" sequence="30" groups="is_group_sportif"/>
 
         <record model="ir.ui.view" id="is_view_partner_form">
             <field name="name">is_view_partner_form</field>
@@ -103,23 +100,42 @@
                     </button>
                 </xpath>
                <field name="name" position="before">
-                    <field name="is_prenom" placeholder="Prénom" string="Prénom" attrs="{'invisible': [('is_company','=', True)]}"/>
+                    <field 
+                        name="is_prenom" 
+                        placeholder="Prénom" 
+                        string="Prénom" 
+                        attrs="{
+                            'invisible': [('is_company','=', True)],
+                            'required' : [('is_type_contact','=', 'sportif')]
+                        }"/>
+                        <span style="padding-left:0.5em"></span>
+                </field>
+
+                <xpath expr="//sheet/group/group/field[@name='type']" position="before">
+                    <field name="is_type_contact" attrs="{'required': True}"/>
+                    <field name="is_typologie_client"  
+                            attrs="{
+                                'invisible': [('is_type_contact','not in', ['sportif','entreprise'])],
+                                'required' : [('is_type_contact','in'    , ['sportif','entreprise'])]
+                            }"
+                    />
+                    <field name="is_referent_id"/>
+                </xpath>
+                <field name="city" position="attributes">
+                    <attribute name="attrs">{'required': [('is_type_contact','in', ['entreprise','ambassadeur','prestataire','intervenant'])]}</attribute>
+                </field>
+                <field name="mobile" position="attributes">
+                    <attribute name="attrs">{'required': [('is_type_contact','in', ['sportif','entreprise','ambassadeur','prestataire','intervenant'])]}</attribute>
+                </field>
+                <field name="country_id" position="attributes">
+                    <attribute name="attrs">{'required': [('is_type_contact','=', 'sportif')]}</attribute>
                 </field>
                <field name="website" position="after">
                     <field name="is_facebook"/>
                 </field>
-               <field name="email" position="replace">
-                    <field name="email"/>
-                    <field name="is_type_contact"/>
+                <field name="email" position="attributes">
+                    <attribute name="attrs">{'required': [('is_type_contact','in', ['sportif','ambassadeur','prestataire','intervenant'])]}</attribute>
                 </field>
-                <!-- <field name="state_id" position="replace">
-                    <field name="state_id" options='{"no_open": True}' on_change="onchange_state(state_id)" attrs="{'invisible':True, 'readonly': [('use_parent_address','=',True)]}"/>
-                </field> -->
-                <!-- <field name="title" position="replace">
-                    <field name="title" 
-                           options='{"no_open": True}' 
-                           attrs="{'invisible': [('is_type_contact','!=', 'sportif'),('is_type_contact','!=', 'ambassadeur'),('is_type_contact','!=', 'messager')]}"/>
-                </field> -->
                 <field name="country_id" position="before">
                     <field name="is_region_id" placeholder="Région" />
                 </field>
@@ -127,26 +143,51 @@
                     <field string="Titulaire" name="user_id" context="{}" />
                 </field>
 
-                <xpath expr="//sheet/group/group/field[@name='type']" position="before">
-                    <field name="is_type_contact"/>
-                    <field name="is_referent_id"/>
-                </xpath>
+
+
+
+
                 <xpath expr="//sheet/notebook/page[@name='contact_addresses']" position="before">
                     <page string="CRM" autofocus="autofocus">
                         <group>
                             <group string="Sportif" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'sportif')]}">
-                                <field name="is_club_id" domain="[('is_type_contact','=','club')]" />
+                                <field 
+                                    name="is_club_id" 
+                                    domain="[('is_type_contact','=','club')]" 
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
                                 <field name="is_syndicat_id" domain="[('is_type_contact','=','syndicat')]" />
-                                <field name="is_dernieres_saisons"             />
-                                <field name="is_date_naissance"                />
+                                <field 
+                                    name="is_dernieres_saisons"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
+                                <field 
+                                    name="is_date_naissance"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
                                 <field name="is_statut_sportif_id"             />
                                 <field name="is_situation_familiale"/>
-                                <field name="is_niveau_etude"/>
-                                <field name="is_situation_contractuelle"/>
-                                <field name="is_remuneration_annuelle"/>
+                                <field 
+                                    name="is_diplome"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
+                                <field 
+                                    name="is_situation_contractuelle"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
+                                <field 
+                                    name="is_rqth"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
                                 <field name="is_raison_fin_carriere"/>
-                                <field name="is_projet"/>
-                                <field name="is_nationalite_id"/>
+                                <field 
+                                    name="is_projet"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
+                                <field 
+                                    name="is_nationalite_id"
+                                    attrs="{'required': [('is_type_contact','=', 'sportif')]}"
+                                />
                             </group>
                             <group string="Club" colspan="4" attrs="{'invisible': [('is_type_contact','!=', 'club')]}">
                                 <field name="is_niveau_id"                    />
@@ -192,11 +233,17 @@
                                 <field name="is_date_qualification" />
                                 <field name="is_nb_salaries" attrs="{'invisible': [('is_company','!=', True)]}"/>
                                 <field name="is_sport_id"  
-                                       attrs="{'invisible': [('is_type_contact','!=', 'club'),
-                                                             ('is_type_contact','!=', 'sportif'),
-                                                             ('is_type_contact','!=', 'ambassadeur'),
-                                                             ('is_type_contact','!=', 'syndicat'),
-                                                             ('is_type_contact','!=', 'federation_ligue')]}"/>
+                                       attrs="{
+                                            'invisible': [
+                                                ('is_type_contact','!=', 'club'),
+                                                ('is_type_contact','!=', 'sportif'),
+                                                ('is_type_contact','!=', 'ambassadeur'),
+                                                ('is_type_contact','!=', 'syndicat'),
+                                                ('is_type_contact','!=', 'federation_ligue')
+                                            ],
+                                            'required': [('is_type_contact','=', 'sportif')]
+                                        }"
+                                />
                                 <field name="is_federation_id"  
                                        attrs="{'invisible': [('is_type_contact','!=', 'club'),
                                                              ('is_type_contact','!=', 'sportif')]}"
@@ -213,10 +260,21 @@
                                 <field name="is_siret" />
                                 <field name="is_createur_id" readonly="1" />
                             </group>
+
+                            <group 
+                                string="Pièces jointes" colspan="4" 
+                                groups="sales_team.group_sale_manager"
+                                attrs="{'invisible': [('is_type_contact','not in', ['sportif','entreprise'])]}"
+                            >
+                                <field name="fichiers_a_conserver_ids" widget="many2many_binary"/>
+                                <field name="fichiers_a_supprimer_ids" widget="many2many_binary"/>
+                            </group>
+
+
                         </group>
                     </page>
-                    <page string="Suivi d'activité">
-                        <group groups="sales_team.group_sale_manager">
+                    <page string="Plan d'action" groups="sales_team.group_sale_manager">
+                        <group>
                             <group>
                                 <field name="is_budget_previsionnel" />
                                 <field name="is_total_facture" />
@@ -270,21 +328,11 @@
         </field>
     </record>
     <record id="is_client_action" model="ir.actions.act_window">
-        <field name="name">Clients</field>
+        <field name="name">Tous les contacts</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">res.partner</field>
         <field name="view_id" ref="is_client_tree_view"/>
         <field name="view_mode">tree,kanban,form,graph</field>
-    </record>
-
-    <record id="menu_crm_client" model="ir.ui.menu">
-        <field name="name">Clients</field>
-        <field name="sequence">10</field>
-        <field name="parent_id" eval="ref('menu_crm_crm')"/>
-        <field name="action"    ref="is_client_action"/>
-        <field name="groups_id" eval="[(6,0,[
-            ref('sales_team.group_sale_manager'),
-        ])]"/>
     </record>
 
 
@@ -301,6 +349,7 @@
                 <field name="is_club_id"/>
                 <field name="is_financeur_ids"/>
                 <field name="is_type_contact"/>
+                <field name="is_typologie_client"/>
                 <field name="is_sport_id"/>
                 <field name="is_niveau_id"/>
                 <field name="is_statut_id"/>
@@ -356,7 +405,6 @@
         <field name="domain">[('is_type_contact','=','club')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_club_action" id="menu_crm_club" parent="menu_crm_crm" sequence="20" groups="is_group_club"/>
 
 
     <!-- Menu Financeur institutionnel -->
@@ -382,7 +430,6 @@
         <field name="domain">[('is_type_contact','=','financeur_institutionnel')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_financeur_institutionnel_action" id="menu_crm_financeur_institutionnel" parent="menu_crm_crm" sequence="30"  groups="is_group_financeur_institutionnel"/>
 
 
     <!-- Menu Financeur privé -->
@@ -409,7 +456,6 @@
         <field name="domain">[('is_type_contact','=','financeur_prive')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_financeur_prive_action" id="menu_crm_financeur_prive" parent="menu_crm_crm" sequence="30"  groups="is_group_financeur_prive"/>
 
 
     <!-- Menu Fédération - Ligue -->
@@ -434,7 +480,6 @@
         <field name="domain">[('is_type_contact','=','federation_ligue')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_federation_ligue_action" id="menu_crm_federation_ligue" parent="menu_crm_crm" sequence="30" groups="is_group_federation_ligue"/>
 
 
     <!-- Menu Syndicats -->
@@ -459,7 +504,6 @@
         <field name="domain">[('is_type_contact','=','syndicat')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_syndicat_action" id="menu_crm_syndicat" parent="menu_crm_crm" sequence="30" groups="is_group_syndicat"/>
 
 
     <!-- Menu ambassadeur -->
@@ -485,7 +529,54 @@
         <field name="domain">[('is_type_contact','=','ambassadeur')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_ambassadeur_action" id="menu_crm_ambassadeur" parent="menu_crm_crm" sequence="30"  groups="is_group_ambassadeur"/>
+
+
+    <!-- Menu intervenant -->
+    <record model="ir.ui.view" id="is_intervenant_tree_view">
+        <field name="name">is_intervenant_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_intervenant_action" model="ir.actions.act_window">
+        <field name="name">Intervenants</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_intervenant_tree_view"/>
+        <field name="domain">[('is_type_contact','=','intervenant')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+
+
+    <!-- Menu prestataire -->
+    <record model="ir.ui.view" id="is_prestataire_tree_view">
+        <field name="name">is_prestataire_tree_view</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="is_prenom"/>
+                <field name="phone"/>
+                <field name="mobile"/>
+                <field name="email"/>
+            </tree>
+        </field>
+    </record>
+    <record id="is_prestataire_action" model="ir.actions.act_window">
+        <field name="name">Prestataires</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_id" ref="is_prestataire_tree_view"/>
+        <field name="domain">[('is_type_contact','=','prestataire')]</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
 
 
     <!-- Menu Messager -->
@@ -511,7 +602,6 @@
         <field name="domain">[('is_type_contact','=','messager')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_messager_action" name="Messagers" id="menu_crm_messagers" parent="menu_crm_crm" sequence="40"  groups="is_group_messager"/>
 
 
    <!-- Menu Entreprises -->
@@ -537,7 +627,6 @@
         <field name="domain">[('is_type_contact','=','entreprise')]</field>
         <field name="view_mode">tree,kanban,form</field>
     </record>
-    <menuitem action="is_entreprise_action" id="menu_crm_messager" parent="menu_crm_crm" sequence="50"  groups="is_group_entreprise"/>
 
 
 
@@ -784,14 +873,6 @@
         <field name="res_model">is.base.documentaire</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <menuitem action="is_base_documentaire_action" id="menu_base_documentaire" parent="menu_crm_documents" sequence="10"/>
-
-
-
-    <menuitem action="is_base_documentaire_action" id="menu_base_documentaire" parent="menu_crm_documents" sequence="10"/>
-
-    <menuitem id="mail.menu_root_discuss" parent="base.menu_custom" />
-
 
 
     </data>

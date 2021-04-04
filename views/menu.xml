@@ -1,15 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <menuitem name="CRM"       id="menu_crm"           sequence="1"/>
+
+    <!-- CRM -->
+    <menuitem name="CRM"       id="menu_crm_crm"       sequence="10"  parent="menu_crm"/>
+    <menuitem action="is_sportif_action"    id="menu_crm_sportif"  parent="menu_crm_crm" sequence="10" groups="is_group_sportif"/>
+    <menuitem action="is_entreprise_action" id="menu_crm_messager" parent="menu_crm_crm" sequence="20" groups="is_group_entreprise"/>
+
+    <!-- Fournisseurs -->
+    <menuitem name="Fournisseurs" id="is_fournisseurs_menu" sequence="20"  parent="menu_crm"/>
+    <menuitem action="is_ambassadeur_action" id="is_ambassadeur_menu" parent="is_fournisseurs_menu" sequence="10"  groups="is_group_ambassadeur"/>
+    <menuitem action="is_intervenant_action" id="is_intervenant_menu" parent="is_fournisseurs_menu" sequence="20"  groups="is_group_intervenant"/>
+    <menuitem action="is_prestataire_action" id="is_prestataire_menu" parent="is_fournisseurs_menu" sequence="30"  groups="is_group_prestataire"/>
+
+    <!-- Contacts -->
+    <menuitem name="Contacts" id="is_contacts_menu" sequence="30"  parent="menu_crm"/>
+    <record id="tous_les_contacts_menu" model="ir.ui.menu">
+        <field name="name">Tous les contacts</field>
+        <field name="sequence">10</field>
+        <field name="parent_id" eval="ref('is_contacts_menu')"/>
+        <field name="action"    ref="is_client_action"/>
+        <field name="groups_id" eval="[(6,0,[
+            ref('sales_team.group_sale_manager'),
+        ])]"/>
+    </record>
+    <menuitem action="is_club_action"             id="menu_crm_club"             parent="is_contacts_menu" sequence="20" groups="is_group_club"/>
+    <menuitem action="is_federation_ligue_action" id="menu_crm_federation_ligue" parent="is_contacts_menu" sequence="30" groups="is_group_federation_ligue"/>
+
+ 
+    <menuitem action="is_financeur_institutionnel_action"  id="menu_crm_financeur_institutionnel" parent="is_contacts_menu" sequence="20" groups="is_group_financeur_institutionnel"/>
+    <menuitem action="is_financeur_prive_action"           id="menu_crm_financeur_prive"          parent="is_contacts_menu" sequence="30" groups="is_group_financeur_prive"/>
+    <menuitem action="is_syndicat_action"                  id="menu_crm_syndicat"                 parent="is_contacts_menu" sequence="40" groups="is_group_syndicat"/>
+    <menuitem action="is_messager_action" name="Messagers" id="menu_crm_messagers"                parent="is_contacts_menu" sequence="50" groups="is_group_messager"/>
+
+    <menuitem name="Documents" id="menu_crm_documents" sequence="40"  parent="menu_crm" groups="sales_team.group_sale_manager"/>
+    <menuitem action="is_base_documentaire_action" id="menu_base_documentaire" parent="menu_crm_documents" sequence="10"/>
+
 
     <!-- Suivi activité -->
-    <menuitem name="Suivi activité"  id="is_suivi_activite_main_menu" sequence="30"  parent="menu_crm"/>
+    <menuitem name="Suivi activité"  id="is_suivi_activite_main_menu" sequence="50"  parent="menu_crm"/>
     <menuitem name="Suivi activité"  id="is_suivi_activite_menu" sequence="10" action="is_suivi_activite_action" parent="is_suivi_activite_main_menu" />
     <menuitem name="Suivi du budget" id="is_suivi_budget_menu"   sequence="20" action="is_suivi_budget_action"   parent="is_suivi_activite_main_menu"   groups="sales_team.group_sale_manager"/>
 
 
     <!-- Tables --> -->
-    <menuitem name="Tables"    id="menu_crm_tables"    sequence="40"                  parent="menu_crm" groups="sales_team.group_sale_manager"/>
+    <menuitem name="Tables"    id="menu_crm_tables"    sequence="90"                  parent="menu_crm" groups="sales_team.group_sale_manager"/>
     <menuitem action="is_region_action"              id="menu_region"                 parent="menu_crm_tables" sequence="10"/>
     <menuitem action="is_sport_action"               id="menu_sport"                  parent="menu_crm_tables" sequence="20"/>
     <menuitem action="is_niveau_action"              id="menu_niveau"                 parent="menu_crm_tables" sequence="30"/>
@@ -45,8 +81,5 @@
         ])]"/>
     </record>
 
-
-
-
-
+    <menuitem id="mail.menu_root_discuss" parent="base.menu_custom"/>
 </odoo>

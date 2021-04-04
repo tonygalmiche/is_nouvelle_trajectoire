@@ -105,7 +105,7 @@ class ResPartner(models.Model):
 
     is_prenom = fields.Char("Prénom", size=255)
     is_createur_id = fields.Many2one('res.users', 'Créateur de la fiche', required=False, default=lambda self: self.env.user)
-    is_club_id = fields.Many2one('res.partner', 'Club', required=False)
+    is_club_id = fields.Many2one('res.partner', 'Club actuel')
     is_federation_id = fields.Many2one('res.partner', 'Fédération', required=False)
     is_syndicat_id = fields.Many2one('res.partner', 'Syndicat', required=False)
     is_financeur_ids = fields.Many2many(
@@ -124,14 +124,25 @@ class ResPartner(models.Model):
             ('federation_ligue'         , 'Fédération - Ligue'),
             ('syndicat'                 , 'Syndicat'),
             ('ambassadeur'              , "Ambassadeur"),
+            ('intervenant'              , "Intervenant"),
+            ('prestataire'              , "Prestataire de service"),
             ('messager'                 , "Messager"),
             ('entreprise'               , "Entreprise"),
         ],
         'Type de contact', required=False)
 
     is_group_id = fields.Many2one('res.groups', 'Groupe', compute='_compute_group_id', store=True)
-
-
+    is_typologie_client = fields.Selection([
+            ("Suspect"           , "Suspect"),
+            ("Prospect"          , "Prospect"),
+            ("Prospect chaud"    , "Prospect chaud"),
+            ("Nouveau client"    , "Nouveau client"),
+            ("Client stratégique", "Client stratégique"),
+            ("Client récurrent"  , "Client récurrent"),
+            ("Client inactif"    , "Client inactif"),
+            ("Client perdu"      , "Client perdu"),
+        ],
+        'Typologie client')
     is_referent_id = fields.Many2one('res.users', 'Référent', required=False)
 
     # Club
@@ -154,12 +165,15 @@ class ResPartner(models.Model):
     is_date_qualification = fields.Date('Date de qualification du client')
 
     # Sportif
-    is_dernieres_saisons = fields.Text('3 dernières saisons')
+    is_dernieres_saisons = fields.Text('Parcours sportif')
     is_date_naissance = fields.Date('Date de naissance')
     is_statut_sportif_id = fields.Many2one('is.statut.sportif', 'Statut du sportif')
     is_situation_familiale =  fields.Char("Situation familiale")
-    is_niveau_etude =  fields.Char("Niveau d'études")
-    is_situation_contractuelle =  fields.Char("Situation contractuelle")
+    is_niveau_etude =  fields.Char("Niveau d'études") # Champ remplacé le 04/04/21 par is_diplome
+    is_diplome = fields.Selection([('bac', 'bac'), ('bac2', 'bac+2'), ('bac4', 'bac+4'), ('bac6', 'bac+6')], 'Diplôme')
+
+    is_situation_contractuelle =  fields.Char("Expériences professionnelles")
+    is_rqth = fields.Selection([('oui', 'Oui'), ('non', 'Non')], "Titulaire d'une RQTH", help="Reconnaissance de la Qualité de travailleur handicapé")
     is_remuneration_annuelle = fields.Integer("Rémunération annuelle")
     is_raison_fin_carriere =  fields.Text("Raison fin de carrière")
     is_projet =  fields.Char("Projet")
@@ -204,6 +218,9 @@ class ResPartner(models.Model):
     is_ecart_budget           = fields.Integer(compute=_compute_suivi_activite      , string="Ecart budget"         , store=True, readonly=True)
     is_alerte_activite        = fields.Text(   compute=_compute_suivi_activite      , string="Alerte"               , store=True, readonly=True)
     is_date_derniere_activite = fields.Date(   compute=_compute_suivi_activite      , string="Dernière activité"    , store=True, readonly=True)
+
+    fichiers_a_conserver_ids = fields.Many2many('ir.attachment', 'fichiers_a_conserver_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à supprimer')
+    fichiers_a_supprimer_ids = fields.Many2many('ir.attachment', 'fichiers_a_supprimer_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à conserver')
 
 
 class is_region(models.Model):

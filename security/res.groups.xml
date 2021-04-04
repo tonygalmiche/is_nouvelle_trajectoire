@@ -33,6 +33,14 @@
         <field name="name">Ambassadeur</field>
         <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
     </record>
+    <record model="res.groups" id="is_group_intervenant">
+        <field name="name">Intervenant</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
+    <record model="res.groups" id="is_group_prestataire">
+        <field name="name">Prestataire</field>
+        <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
+    </record>
     <record model="res.groups" id="is_group_messager">
         <field name="name">Messager</field>
         <field name="category_id" ref="is_nouvelle_trajectoire_module_category"/>
