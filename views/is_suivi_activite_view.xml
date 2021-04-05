@@ -10,7 +10,9 @@
                 <field name="type_activite_id"/>
                 <field name="partner_id"/>
                 <field name="date_prevue"/>
+                <field name="date_prochaine_action"/>
                 <field name="date_realisee"/>
+                <field name="scoring"/>
                 <field name="commentaire"/>
             </tree>
         </field>
@@ -26,7 +28,9 @@
                         <field name="type_activite_id"/>
                         <field name="partner_id"/>
                         <field name="date_prevue"/>
+                        <field name="date_prochaine_action"/>
                         <field name="date_realisee"/>
+                        <field name="scoring"/>
                         <field name="commentaire"/>
                     </group>
                 </sheet>
@@ -41,8 +45,7 @@
                 <field name="createur_id"/>
                 <field name="type_activite_id"/>
                 <field name="partner_id"/>
-                <field name="date_prevue"/>
-                <field name="date_realisee"/>
+                <field name="scoring"/>
                 <field name="commentaire"/>
             </search>
         </field>

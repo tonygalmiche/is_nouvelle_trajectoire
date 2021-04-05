@@ -51,7 +51,9 @@
     <menuitem action="is_niveau_action"              id="menu_niveau"                 parent="menu_crm_tables" sequence="30"/>
     <menuitem action="is_statut_action"              id="menu_statut"                 parent="menu_crm_tables" sequence="40"/>
     <menuitem action="is_statut_sportif_action"      id="menu_statut_sportif"         parent="menu_crm_tables" sequence="50"/>
-    <menuitem action="is_suivi_activite_type_action" id="is_suivi_activite_type_menu" parent="menu_crm_tables" sequence="60"/>
+    <menuitem action="is_secteur_activite_action"    id="is_secteur_activite_menu"    parent="menu_crm_tables" sequence="60"/>
+    <menuitem action="is_suivi_activite_type_action" id="is_suivi_activite_type_menu" parent="menu_crm_tables" sequence="70"/>
+
 
 
     <!-- Limiter l'accès aux menus par défaut -->

@@ -104,6 +104,11 @@ class ResPartner(models.Model):
 
 
     is_prenom = fields.Char("Prénom", size=255)
+    is_pouvoir_decision = fields.Selection([
+            ('décideur','décideur'),
+            ('prescripteur','prescripteur'),
+            ('utilisateur','utilisateur'),
+        ], 'Pouvoir de décision')
     is_createur_id = fields.Many2one('res.users', 'Créateur de la fiche', required=False, default=lambda self: self.env.user)
     is_club_id = fields.Many2one('res.partner', 'Club actuel')
     is_federation_id = fields.Many2one('res.partner', 'Fédération', required=False)
@@ -152,7 +157,7 @@ class ResPartner(models.Model):
     is_opca1 =  fields.Char("OPCA 1")
     is_opca2 =  fields.Char("OPCA 2")
     reseaux_sociaux = fields.Text('Réseaux sociaux', required=False)
-    is_nb_salaries = fields.Selection([('10', '-10'), ('49', '10-49'), ('999', '49 et +')], 'Nombre de salariés')
+    is_nb_salaries = fields.Selection([('10', '0 à 10'), ('49', '11 à 50'),('250', '51 à 250'), ('999', '+ de 250')], 'Nombre de salariés')
     is_budget_annuel = fields.Integer("Budget annuel")
     is_budget_formation = fields.Integer("Budget formation")
     is_centre_formation = fields.Selection([('oui', 'Oui'), ('non', 'Non')], 'Centre de formation')
@@ -208,7 +213,30 @@ class ResPartner(models.Model):
     is_prochaine_action =  fields.Date("Prochaine action")
     is_type_action =  fields.Char("Type d'action")
 
+
+    #Entreprise
+    is_secteur_activite_id = fields.Many2one('is.secteur.activite', "Secteur d'activité")
+    is_statut_entreprise = fields.Selection([
+            ('Maison mère','Maison mère'),
+            ('Succursale','Succursale'),
+            ('Filiale','Filiale'),
+            ('Franchise','Franchise'),
+            ('Indépendant ','Indépendant '),
+    ], 'Statut entreprise')
+    is_maison_mere_id = fields.Many2one('res.partner', 'Maison mère')
+
+
     #Suivi activité / Budget
+    is_situation_plan_action = fields.Selection([
+            ('Prise de contact','Prise de contact'),
+            ('Envoi de dossier','Envoi de dossier'),
+            ('Relance','Relance'),
+            ('R1 Analyse des Besoins','R1 Analyse des Besoins'),
+            ('R2 Offre','R2 Offre'),
+            ('R3 Négociation','R3 Négociation'),
+            ('R4 Suivi ','R4 Suivi '),
+    ], "Situation du plan d'action")
+
     is_suivi_activite_ids     = fields.One2many('is.suivi.activite', 'partner_id', "Suivi d'activité")
     is_budget_previsionnel    = fields.Integer("Budget prévisionnel")
     is_suivi_activite_count   = fields.Integer(compute=_compute_suivi_activite_count, string="# Suivi d'activité")
@@ -217,7 +245,7 @@ class ResPartner(models.Model):
     is_total_facture          = fields.Integer(compute=_compute_suivi_activite      , string="Total facturé"        , store=True, readonly=True)
     is_ecart_budget           = fields.Integer(compute=_compute_suivi_activite      , string="Ecart budget"         , store=True, readonly=True)
     is_alerte_activite        = fields.Text(   compute=_compute_suivi_activite      , string="Alerte"               , store=True, readonly=True)
-    is_date_derniere_activite = fields.Date(   compute=_compute_suivi_activite      , string="Dernière activité"    , store=True, readonly=True)
+    is_date_derniere_activite = fields.Date(   compute=_compute_suivi_activite      , string="Dernière action commerciale", store=True, readonly=True)
 
     fichiers_a_conserver_ids = fields.Many2many('ir.attachment', 'fichiers_a_conserver_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à supprimer')
     fichiers_a_supprimer_ids = fields.Many2many('ir.attachment', 'fichiers_a_supprimer_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à conserver')
@@ -251,6 +279,13 @@ class is_statut_sportif(models.Model):
     _name = 'is.statut.sportif'
     _description = "Statut du sportif"
     name = fields.Char("Statut du sportif", required=True)
+
+
+class is_secteur_activite(models.Model):
+    _name = 'is.secteur.activite'
+    _description = "Secteur d'activité"
+    _order='name'
+    name = fields.Char("Secteur d'activité", required=True)
 
 
 class is_base_documentaire(models.Model):
