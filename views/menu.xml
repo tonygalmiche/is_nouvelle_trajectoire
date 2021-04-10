@@ -40,7 +40,7 @@
 
     <!-- Suivi activité -->
     <menuitem name="Suivi activité"  id="is_suivi_activite_main_menu" sequence="50"  parent="menu_crm"/>
-    <menuitem name="Suivi activité"  id="is_suivi_activite_menu" sequence="10" action="is_suivi_activite_action" parent="is_suivi_activite_main_menu" />
+    <menuitem name="Plan d'actions"  id="is_suivi_activite_menu" sequence="10" action="is_suivi_activite_action" parent="is_suivi_activite_main_menu" />
     <menuitem name="Suivi du budget" id="is_suivi_budget_menu"   sequence="20" action="is_suivi_budget_action"   parent="is_suivi_activite_main_menu"   groups="sales_team.group_sale_manager"/>
 
 

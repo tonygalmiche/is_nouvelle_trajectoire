@@ -175,7 +175,16 @@ class ResPartner(models.Model):
     is_statut_sportif_id = fields.Many2one('is.statut.sportif', 'Statut du sportif')
     is_situation_familiale =  fields.Char("Situation familiale")
     is_niveau_etude =  fields.Char("Niveau d'études") # Champ remplacé le 04/04/21 par is_diplome
-    is_diplome = fields.Selection([('bac', 'bac'), ('bac2', 'bac+2'), ('bac4', 'bac+4'), ('bac6', 'bac+6')], 'Diplôme')
+    is_diplome = fields.Selection([
+            ('aucun', 'Aucun'), 
+            ('cap'  , 'CAP'), 
+            ('bep'  , 'BEP'), 
+            ('bac'  , 'BAC'), 
+            ('bac2' , 'BAC+2'), 
+            ('bac3' , 'BAC+3'), 
+            ('bac5' , 'BAC+5'), 
+            ('bac7' , 'BAC+7')
+        ], 'Diplôme')
 
     is_situation_contractuelle =  fields.Char("Expériences professionnelles")
     is_rqth = fields.Selection([('oui', 'Oui'), ('non', 'Non')], "Titulaire d'une RQTH", help="Reconnaissance de la Qualité de travailleur handicapé")
@@ -251,6 +260,36 @@ class ResPartner(models.Model):
     fichiers_a_supprimer_ids = fields.Many2many('ir.attachment', 'fichiers_a_supprimer_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à conserver')
 
 
+    @api.model
+    def _actualiser_typologie_client_ir_cron(self):
+        filtre=[
+            ('is_type_contact'    , 'in', ['sportif','entreprise']),
+            ('is_typologie_client', 'in', ["Client stratégique", "Client récurrent", "Nouveau client", "Client inactif"]),
+        ]
+        partners = self.env['res.partner'].sudo().search(filtre)
+        for partner in  partners:
+            limite = date.today() - relativedelta(months=12)
+            filtre=[
+                ('state'       , '=' , 'posted'),
+                ('partner_id'  , '=' , partner.id),
+                ('invoice_date', '>=', limite),
+            ]
+            invoices = self.env['account.move'].sudo().search(filtre)
+            if len(invoices)==0:
+                partner.is_typologie_client='Client inactif'
+            limite = date.today() - relativedelta(months=18)
+            filtre=[
+                ('state'       , '=' , 'posted'),
+                ('partner_id'  , '=' , partner.id),
+                ('invoice_date', '>=', limite),
+            ]
+            invoices = self.env['account.move'].sudo().search(filtre)
+            if len(invoices)==0:
+                partner.is_typologie_client='Client perdu'
+
+        return True
+
+
 class is_region(models.Model):
     _name = 'is.region'
     _description = u"Région"
@@ -261,6 +300,7 @@ class is_sport(models.Model):
     _name = 'is.sport'
     _description = "Sport"
     name = fields.Char("Sport", required=True)
+    user_ids = fields.Many2many('res.users', column1='sport_id', column2='user_id', string='Ambassadeurs')
 
 
 class is_niveau(models.Model):
