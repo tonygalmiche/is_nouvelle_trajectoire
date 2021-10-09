@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="is_view_users_form">
+        <field name="name">is_view_users_form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <group name="preferences" position="before">
+                <group string="Paramètres Nouvelle trajectoire">
+                    <field name="is_code_couleur"/>
+                </group>
+            </group>
+        </field>
+    </record>
+  
+
+</odoo>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_suivi_prestation">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <h2>Suivi des prestations</h2>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th><strong>Nom</strong></th>
+                                    <th><strong>Prénom</strong></th>
+                                    <th><strong>Sport</strong></th>
+                                    <th><strong>Prestation</strong></th>
+                                    <th><strong>Date de début</strong></th>
+                                    <th><strong>Date de fin</strong></th>
+                                    <th><strong>Ambassadeur</strong></th>
+                                    <th><strong>Orientation</strong></th>
+                                    <th><strong>1er Coach</strong></th>
+                                    <th><strong>Rendez-vous</strong></th>
+                                    <th><strong>Durée totale</strong></th>
+                                    <th><strong>Durée prévue</strong></th>
+                                    <th><strong>En attente</strong></th>
+                                    <th><strong>Total facturé</strong></th>
+                                    <th><strong>Reste à payer</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="docs" t-as="o">
+                                    <td><span t-field="o.name"/></td>
+                                    <td><span t-field="o.is_prenom"/></td>
+                                    <td><span t-field="o.is_sport_id"/></td>
+                                    <td><span t-field="o.is_prestation_id"/></td>
+                                    <td><span t-field="o.is_prestation_debut"/></td>
+                                    <td><span t-field="o.is_prestation_fin"/></td>
+                                    <td><span t-field="o.is_referent_id"/></td>
+                                    <td></td>
+                                    <td><span t-field="o.is_premier_coach_id"/></td>
+                                    <td><span t-raw="o.is_rendez_vous"/></td>
+                                    <td><span t-field="o.is_rendez_vous_duree"/></td>
+                                    <td><span t-field="o.is_rendez_vous_prevu"/></td>
+                                    <td><span t-field="o.is_prestation_attente"/></td>
+                                    <td><span t-field="o.is_total_facture"/></td>
+                                    <t t-if="o.is_total_paye &gt; 0">
+                                        <td style="background-color:orange"><span t-field="o.is_total_paye"/></td>
+                                    </t>
+                                    <t t-else="">
+                                        <td><span t-field="o.is_total_paye"/></td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+
+        <record id="is_suivi_prestation_paperformat" model="report.paperformat">
+            <field name="name">Suivi des prestations</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">35</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">30</field>
+            <field name="dpi">90</field>
+        </record>
+
+
+        <record id="report_suivi_prestations" model="ir.actions.report">
+            <field name="name">Suivi des prestations</field>
+            <field name="model">res.partner</field>
+            <field name="binding_model_id" ref="model_res_partner"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">is_nouvelle_trajectoire.report_suivi_prestation</field>
+            <field name="report_file">is_nouvelle_trajectoire.report_suivi_prestation</field>
+            <field name="binding_view_types">list,form</field>
+            <field name="paperformat_id" ref="is_nouvelle_trajectoire.is_suivi_prestation_paperformat"/>
+
+
+        </record>
+
+
+    </data>
+</odoo>

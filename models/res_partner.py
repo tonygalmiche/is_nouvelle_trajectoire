@@ -103,6 +103,46 @@ class ResPartner(models.Model):
             return d
 
 
+    @api.depends('name')
+    def _compute_is_rendez_vous(self):
+        for obj in self:
+            self.env.cr.execute("""
+                SELECT e.start,e.user_id,e.duration,u.is_code_couleur
+                FROM calendar_event_res_partner_rel rel join calendar_event e on rel.calendar_event_id=e.id
+                                                        join res_users u on e.user_id=u.id
+                WHERE rel.res_partner_id=%s
+                ORDER BY e.start
+            """, [obj.id])
+            events = self.env.cr.fetchall()
+            duree=0
+            coach_id=False
+            rdvs=[]
+            for e in events:
+                if not coach_id:
+                    coach_id=e[1]
+                duree+=e[2]
+                d=e[0].strftime('%d/%m/%Y')
+                html='<span style="background-color:%s">%s</span>'%(e[3],d)
+                rdvs.append(html)
+            html=" ".join(rdvs)
+            obj.is_rendez_vous=html
+            obj.is_rendez_vous_duree=duree
+            obj.is_premier_coach_id=coach_id
+
+
+    @api.depends('name')
+    def _compute_is_total_facture_paye(self):
+        for obj in self:
+            self.env.cr.execute("""
+                SELECT sum(am.amount_total),sum(am.amount_residual)
+                FROM account_move am
+                WHERE am.partner_id=%s and state='posted' and move_type='out_invoice'
+            """, [obj.id])
+            move = self.env.cr.fetchone()
+            obj.is_total_facture=move[0]
+            obj.is_total_paye=move[1]
+
+
     is_prenom = fields.Char("Prénom", size=255)
     is_pouvoir_decision = fields.Selection([
             ('décideur','décideur'),
@@ -148,7 +188,18 @@ class ResPartner(models.Model):
             ("Client perdu"      , "Client perdu"),
         ],
         'Typologie client')
-    is_referent_id = fields.Many2one('res.users', 'Référent', required=False)
+    is_referent_id        = fields.Many2one('res.users', 'Référent', required=False)
+    is_prestation_id      = fields.Many2one('is.prestation', 'Prestation')
+    is_prestation_debut   = fields.Date('Début de la prestation')
+    is_prestation_fin     = fields.Date('Fin de la prestation')
+    is_rendez_vous        = fields.Text(string='Rendez-vous'               , compute=_compute_is_rendez_vous, help="Utilisé dans le suivi des prestations")
+    is_rendez_vous_duree  = fields.Float(string='Durée des rendez-vous'    , compute=_compute_is_rendez_vous, help="Utilisé dans le suivi des prestations")
+    is_rendez_vous_prevu  = fields.Float(string='Durée prévue')
+    is_premier_coach_id   = fields.Many2one('res.users', string='1er Coach', compute=_compute_is_rendez_vous, help="Utilisé dans le suivi des prestations")
+    is_prestation_attente = fields.Date('En attente depuis le')
+    is_total_facture      = fields.Float('Total facturé', compute=_compute_is_total_facture_paye)
+    is_total_paye         = fields.Float('Reste à payer'   , compute=_compute_is_total_facture_paye)
+
 
     # Club
     is_sport_id = fields.Many2one('is.sport', 'Sport', required=False)
@@ -255,9 +306,10 @@ class ResPartner(models.Model):
     is_ecart_budget           = fields.Integer(compute=_compute_suivi_activite      , string="Ecart budget"         , store=True, readonly=True)
     is_alerte_activite        = fields.Text(   compute=_compute_suivi_activite      , string="Alerte"               , store=True, readonly=True)
     is_date_derniere_activite = fields.Date(   compute=_compute_suivi_activite      , string="Dernière action commerciale", store=True, readonly=True)
-
-    fichiers_a_conserver_ids = fields.Many2many('ir.attachment', 'fichiers_a_conserver_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à supprimer')
-    fichiers_a_supprimer_ids = fields.Many2many('ir.attachment', 'fichiers_a_supprimer_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à conserver')
+    fichiers_a_conserver_ids  = fields.Many2many('ir.attachment', 'fichiers_a_conserver_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à supprimer')
+    fichiers_a_supprimer_ids  = fields.Many2many('ir.attachment', 'fichiers_a_supprimer_ids_attachment_rel', 'doc_id', 'file_id', 'Pièces jointes à conserver')
+    is_piece_jointe_ids       = fields.One2many('is.piece.jointe', 'partner_id', "Pièces jointes")
+    is_gestionnaire_ids       = fields.Many2many('res.users', column1='partner_id', column2='user_id', string='Gestionnaires', help="Utilisateurs autorisés à modifier cette fiche et consulter les pieces jointes")
 
 
     @api.model
@@ -288,6 +340,17 @@ class ResPartner(models.Model):
                 partner.is_typologie_client='Client perdu'
 
         return True
+
+
+class IsPieceJointe(models.Model):
+    _name = 'is.piece.jointe'
+    _description = "Pièces jointes"
+    _order='id'
+
+    partner_id     = fields.Many2one('res.partner', 'Client'  , required=True, index=True, ondelete='cascade')
+    conservation   = fields.Selection([('a_conserver', 'A conserver'),('a_supprimer','A supprimer')], 'Conservation', required=True, default='a_conserver')
+    attachment_ids = fields.Many2many('ir.attachment', 'is_piece_jointe_rel', 'line_id', 'file_id', 'Pièce jointe')
+    commentaire    = fields.Text('Commentaire')
 
 
 class is_region(models.Model):
@@ -333,3 +396,9 @@ class is_base_documentaire(models.Model):
     _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
     _description = "Base documentaire"
     name = fields.Char("Nom du document", required=True)
+
+
+class is_prestation(models.Model):
+    _name = 'is.prestation'
+    _description = "Prestation"
+    name = fields.Char("Prestation", required=True)

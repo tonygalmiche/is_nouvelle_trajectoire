@@ -5,8 +5,10 @@
 
     <!-- CRM -->
     <menuitem name="CRM"       id="menu_crm_crm"       sequence="10"  parent="menu_crm"/>
-    <menuitem action="is_sportif_action"    id="menu_crm_sportif"  parent="menu_crm_crm" sequence="10" groups="is_group_sportif"/>
-    <menuitem action="is_entreprise_action" id="menu_crm_messager" parent="menu_crm_crm" sequence="20" groups="is_group_entreprise"/>
+    <menuitem action="is_sportif_action"      id="menu_crm_sportif"      parent="menu_crm_crm" sequence="10" groups="is_group_sportif"/>
+    <menuitem action="is_entreprise_action"   id="menu_crm_messager"     parent="menu_crm_crm" sequence="20" groups="is_group_entreprise"/>
+    <menuitem action="is_gestionnaire_action" id="is_gestionnaire_menu"  parent="menu_crm_crm" sequence="30"/>
+
 
     <!-- Fournisseurs -->
     <menuitem name="Fournisseurs" id="is_fournisseurs_menu" sequence="20"  parent="menu_crm"/>
@@ -39,9 +41,10 @@
 
 
     <!-- Suivi activité -->
-    <menuitem name="Suivi activité"  id="is_suivi_activite_main_menu" sequence="50"  parent="menu_crm"/>
-    <menuitem name="Plan d'actions"  id="is_suivi_activite_menu" sequence="10" action="is_suivi_activite_action" parent="is_suivi_activite_main_menu" />
-    <menuitem name="Suivi du budget" id="is_suivi_budget_menu"   sequence="20" action="is_suivi_budget_action"   parent="is_suivi_activite_main_menu"   groups="sales_team.group_sale_manager"/>
+    <menuitem name="Suivi activité"        id="is_suivi_activite_main_menu" sequence="50"  parent="menu_crm"/>
+    <menuitem name="Plan d'actions"        id="is_suivi_activite_menu"   sequence="10" action="is_suivi_activite_action"   parent="is_suivi_activite_main_menu" />
+    <menuitem name="Suivi du budget"       id="is_suivi_budget_menu"     sequence="20" action="is_suivi_budget_action"     parent="is_suivi_activite_main_menu"   groups="sales_team.group_sale_manager"/>
+    <menuitem name="Suivi des prestations" id="is_suivi_prestation_menu" sequence="30" action="is_suivi_prestation_action" parent="is_suivi_activite_main_menu"   groups="sales_team.group_sale_manager"/>
 
 
     <!-- Tables --> -->
@@ -53,7 +56,7 @@
     <menuitem action="is_statut_sportif_action"      id="menu_statut_sportif"         parent="menu_crm_tables" sequence="50"/>
     <menuitem action="is_secteur_activite_action"    id="is_secteur_activite_menu"    parent="menu_crm_tables" sequence="60"/>
     <menuitem action="is_suivi_activite_type_action" id="is_suivi_activite_type_menu" parent="menu_crm_tables" sequence="70"/>
-
+    <menuitem action="is_prestation_action"          id="is_prestation_menu"          parent="menu_crm_tables" sequence="80"/>
 
 
     <!-- Limiter l'accès aux menus par défaut -->
