@@ -3,8 +3,31 @@
     <data>
         <template id="report_suivi_prestation">
             <t t-call="web.html_container">
-                <t t-call="web.external_layout">
+
+
+                <t t-if="not o" t-set="o" t-value="doc"/>
+
+                <t t-if="not company">
+                    <!-- Multicompany -->
+                    <t t-if="company_id">
+                        <t t-set="company" t-value="company_id"/>
+                    </t>
+                    <t t-elif="o and 'company_id' in o">
+                        <t t-set="company" t-value="o.company_id.sudo()"/>
+                    </t>
+                    <t t-else="else">
+                        <t t-set="company" t-value="res_company"/>
+                    </t>
+                </t>
+
+
+                <t t-call="web.external_layout_boxed">
                     <div class="page">
+                        <style>
+                            td{
+                                border:1px solid black;
+                            }
+                        </style>
                         <div class="oe_structure"/>
                         <h2>Suivi des prestations</h2>
                         <table class="table table-condensed">
