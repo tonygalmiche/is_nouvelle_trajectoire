@@ -106,24 +106,25 @@ class ResPartner(models.Model):
     @api.depends('name')
     def _compute_is_rendez_vous(self):
         for obj in self:
-            self.env.cr.execute("""
-                SELECT e.start,e.user_id,e.duration,u.is_code_couleur
-                FROM calendar_event_res_partner_rel rel join calendar_event e on rel.calendar_event_id=e.id
-                                                        join res_users u on e.user_id=u.id
-                WHERE rel.res_partner_id=%s
-                ORDER BY e.start
-            """, [obj.id])
-            events = self.env.cr.fetchall()
             duree=0
             coach_id=False
             rdvs=[]
-            for e in events:
-                if not coach_id:
-                    coach_id=e[1]
-                duree+=e[2]
-                d=e[0].strftime('%d/%m/%Y')
-                html='<span style="background-color:%s">%s</span>'%(e[3],d)
-                rdvs.append(html)
+            if type(obj.id) is int:
+                self.env.cr.execute("""
+                    SELECT e.start,e.user_id,e.duration,u.is_code_couleur
+                    FROM calendar_event_res_partner_rel rel join calendar_event e on rel.calendar_event_id=e.id
+                                                            join res_users u on e.user_id=u.id
+                    WHERE rel.res_partner_id=%s
+                    ORDER BY e.start
+                """, [obj.id])
+                events = self.env.cr.fetchall()
+                for e in events:
+                    if not coach_id:
+                        coach_id=e[1]
+                    duree+=e[2]
+                    d=e[0].strftime('%d/%m/%Y')
+                    html='<span style="background-color:%s">%s</span>'%(e[3],d)
+                    rdvs.append(html)
             html=" ".join(rdvs)
             obj.is_rendez_vous=html
             obj.is_rendez_vous_duree=duree
@@ -133,14 +134,19 @@ class ResPartner(models.Model):
     @api.depends('name')
     def _compute_is_total_facture_paye(self):
         for obj in self:
-            self.env.cr.execute("""
-                SELECT sum(am.amount_total),sum(am.amount_residual)
-                FROM account_move am
-                WHERE am.partner_id=%s and state='posted' and move_type='out_invoice'
-            """, [obj.id])
-            move = self.env.cr.fetchone()
-            obj.is_total_facture=move[0]
-            obj.is_total_paye=move[1]
+            total_facture = 0
+            total_paye    = 0
+            if type(obj.id) is int:
+                self.env.cr.execute("""
+                    SELECT sum(am.amount_total),sum(am.amount_residual)
+                    FROM account_move am
+                    WHERE am.partner_id=%s and state='posted' and move_type='out_invoice'
+                """, [obj.id])
+                move = self.env.cr.fetchone()
+                total_facture = move[0]
+                total_paye    = move[1]
+            obj.is_total_facture = total_facture
+            obj.is_total_paye    = total_paye
 
 
     is_prenom = fields.Char("Prénom", size=255)
