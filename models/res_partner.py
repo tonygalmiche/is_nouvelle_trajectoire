@@ -149,6 +149,12 @@ class ResPartner(models.Model):
             obj.is_total_paye    = total_paye
 
 
+    @api.onchange('is_prestation_id')
+    def onchange_is_prestation_id(self):
+        if self.is_prestation_id:
+            self.is_rendez_vous_prevu = self.is_prestation_id.duree_prevue
+
+
     is_prenom = fields.Char("Prénom", size=255)
     is_pouvoir_decision = fields.Selection([
             ('décideur','décideur'),
@@ -196,6 +202,7 @@ class ResPartner(models.Model):
         'Typologie client')
     is_referent_id        = fields.Many2one('res.users', 'Référent', required=False)
     is_prestation_id      = fields.Many2one('is.prestation', 'Prestation')
+    is_num_suivi          = fields.Char('N° de suivi')
     is_prestation_debut   = fields.Date('Début de la prestation')
     is_prestation_fin     = fields.Date('Fin de la prestation')
     is_rendez_vous        = fields.Text(string='Rendez-vous'               , compute=_compute_is_rendez_vous, help="Utilisé dans le suivi des prestations")
@@ -318,6 +325,9 @@ class ResPartner(models.Model):
     is_gestionnaire_ids       = fields.Many2many('res.users', column1='partner_id', column2='user_id', string='Gestionnaires', help="Utilisateurs autorisés à modifier cette fiche et consulter les pieces jointes")
 
 
+
+
+
     @api.model
     def _actualiser_typologie_client_ir_cron(self):
         filtre=[
@@ -407,4 +417,5 @@ class is_base_documentaire(models.Model):
 class is_prestation(models.Model):
     _name = 'is.prestation'
     _description = "Prestation"
-    name = fields.Char("Prestation", required=True)
+    name         = fields.Char("Prestation"  , required=True)
+    duree_prevue = fields.Float("Durée prévue")

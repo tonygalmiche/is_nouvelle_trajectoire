@@ -33,6 +33,7 @@
                         <table class="table table-condensed">
                             <thead>
                                 <tr>
+                                    <th><strong>N°suivi</strong></th>
                                     <th><strong>Nom</strong></th>
                                     <th><strong>Prénom</strong></th>
                                     <th><strong>Sport</strong></th>
@@ -52,6 +53,7 @@
                             </thead>
                             <tbody>
                                 <tr t-foreach="docs" t-as="o">
+                                    <td><span t-field="o.is_num_suivi"/></td>
                                     <td><span t-field="o.name"/></td>
                                     <td><span t-field="o.is_prenom"/></td>
                                     <td><span t-field="o.is_sport_id"/></td>

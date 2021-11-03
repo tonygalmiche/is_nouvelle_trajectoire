@@ -145,14 +145,27 @@
                     <field name="is_referent_id"/>
                     <field name="is_prestation_id"/>
                     <field 
-                        name="is_rendez_vous_prevu"
+                        name="is_num_suivi"
                         attrs="{
                             'invisible': [('is_prestation_id','=', False)],
                             'required' : [('is_prestation_id','!=', False)]
                         }"
                     />
+                    <field 
+                        name="is_rendez_vous_prevu"
+                        attrs="{
+                            'invisible': [('is_prestation_id','=', False)],
+                            'required' : [('is_prestation_id','!=', False)]
+                        }"
+                        widget="float_time" 
+                    />
                     <field name="is_rendez_vous" widget="html"  groups="sales_team.group_sale_manager" attrs="{'invisible': [('is_prestation_id','=', False)]}"/>
-                    <field name="is_rendez_vous_duree"          groups="sales_team.group_sale_manager" attrs="{'invisible': [('is_prestation_id','=', False)]}"/>
+                    <field 
+                        name="is_rendez_vous_duree"
+                        groups="sales_team.group_sale_manager"
+                        attrs="{'invisible': [('is_prestation_id','=', False)]}"
+                        widget="float_time" 
+                    />
                     <field name="is_premier_coach_id"           groups="sales_team.group_sale_manager" attrs="{'invisible': [('is_prestation_id','=', False)]}"/>
                     <field 
                         name="is_prestation_debut"
@@ -466,8 +479,10 @@
                 <field name="is_agrement"/>
                 <field name="is_region_id"/>
                 <field name="city"/>
-                <field name="is_createur_id" />
-                <field name="is_alerte_activite" />
+                <field name="is_createur_id"/>
+                <field name="is_alerte_activite"/>
+                <field name="is_prestation_id"/>
+                <field name="is_num_suivi"/>
             </field>
             <filter name="type_person" position="before">
                 <filter string="Sans club" name="sans_club" domain="[('is_club_id','=',False)]"/>
@@ -776,6 +791,7 @@
         <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="is_num_suivi"           optional="show"/>
                 <field name="name"/>
                 <field name="is_prenom"/>
                 <field name="is_type_contact"        optional="show"/>
@@ -789,8 +805,8 @@
                 <field name="is_referent_id"         optional="show"/>
                 <field name="is_premier_coach_id"    optional="show"/>
                 <field name="is_rendez_vous"         optional="show" widget="html"/>
-                <field name="is_rendez_vous_duree"   optional="show" sum="Total"/>
-                <field name="is_rendez_vous_prevu"   optional="show" sum="Total"/>
+                <field name="is_rendez_vous_duree"   optional="show" sum="Total" widget="float_time"/>
+                <field name="is_rendez_vous_prevu"   optional="show" sum="Total" widget="float_time"/>
                 <field name="is_prestation_attente"  optional="show"/>
                 <field name="is_total_facture"       optional="show" sum="Total"/>
                 <field name="is_total_paye"          optional="show" sum="Total"/>
@@ -1066,6 +1082,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
+                <field name="duree_prevue" widget="float_time"/>
             </tree>
         </field>
     </record>
@@ -1077,6 +1094,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="duree_prevue" widget="float_time"/>
                     </group>
                 </sheet>
              </form>
